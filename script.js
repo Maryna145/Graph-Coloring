@@ -1,3 +1,5 @@
+let edges; 
+let nodes;
 function buildGraph() {
   //отримуємо матрицю суміжності з текстової області
   let input = document.getElementById("matrixInput1").value.trim();
@@ -5,7 +7,6 @@ function buildGraph() {
   let adjacencyMatrix = rows.map(function (row) {
     return row.trim().split(/\s+/).map(Number);
   });
-
   //коректність матриці
   let size = adjacencyMatrix.length;
   for (let i = 0; i < size; i++) {
@@ -24,13 +25,13 @@ function buildGraph() {
   let isDirected = graphType === "directed";
 
   //створення вершин
-  let nodes = new vis.DataSet();
+  nodes = new vis.DataSet();
   for (let i = 0; i < size; i++) {
     nodes.add({ id: i + 1, label: "x" + (i + 1) });
   }
 
   //створення ребер за матрицею суміжності
-  let edges = new vis.DataSet();
+  edges = new vis.DataSet();
   let edgeIdCounter = 1;
   for (let i = 0; i < size; i++) {
     for (let j = 0; j < size; j++) {
@@ -85,7 +86,6 @@ function findEulerianCycle() {
   let adjacencyMatrix = rows.map(function (row) {
     return row.trim().split(/\s+/).map(Number);
   });
-
   //перевірка графу на зв'язність
   function checkGraphConnectivity() {
     let visited = new Array(adjacencyMatrix.length).fill(false); //масив для відмітки відвіданих вершин
@@ -95,7 +95,8 @@ function findEulerianCycle() {
 
       //проходимо по всіх сусідах
       for (let i = 0; i < adjacencyMatrix[vertex].length; i++) {
-        if (adjacencyMatrix[vertex][i] > 0 && !visited[i]) { // перевіряємо, чи є ребро
+        if (adjacencyMatrix[vertex][i] > 0 && !visited[i]) {
+          // перевіряємо, чи є ребро
           depthFirstSearch(i); //рекурсивний виклик для сусідньої вершини
         }
       }
@@ -116,12 +117,12 @@ function findEulerianCycle() {
   function checkVertexDegrees() {
     let isEulerian = true;
     for (let i = 0; i < adjacencyMatrix.length; i++) {
-      let degree = 0;//ступінь вершини
+      let degree = 0; //ступінь вершини
       for (let j = 0; j < adjacencyMatrix[i].length; j++) {
-        degree += adjacencyMatrix[i][j];//додаємо значення з матриці
+        degree += adjacencyMatrix[i][j]; //додаємо значення з матриці
       }
       if (degree % 2 !== 0) {
-        isEulerian = false;//якщо ступінь не парний
+        isEulerian = false; //якщо ступінь не парний
         break;
       }
     }
@@ -130,15 +131,17 @@ function findEulerianCycle() {
 
   //пошук ейлерового циклу
   function findEulerianPath() {
-    let stack = [];//невідвідані вершини
-    let cycle = [];//відвідані вершини
-    let currentVertex = 0;//початкова вершина
+    let stack = []; //невідвідані вершини
+    let cycle = []; //відвідані вершини
+    let currentVertex = 0; //початкова вершина
     stack.push(currentVertex);
 
     while (stack.length > 0) {
       let hasUnvisitedEdge = false;
-      for (let i = 0; i < adjacencyMatrix.length; i++) {//сусідні вершини
-        if (adjacencyMatrix[currentVertex][i] > 0) {//чи є ребро
+      for (let i = 0; i < adjacencyMatrix.length; i++) {
+        //сусідні вершини
+        if (adjacencyMatrix[currentVertex][i] > 0) {
+          //чи є ребро
           stack.push(currentVertex);
           //зменшуємо кількість ребер
           adjacencyMatrix[currentVertex][i]--;
@@ -170,10 +173,39 @@ function findEulerianCycle() {
 //розфарбування вершин
 
 //розфарбування ребер
+function colorEdges() {
+  //отримуємо матрицю суміжності з текстової області
+  let input = document.getElementById("matrixInput1").value.trim();
+  let rows = input.split("\n");
+  let adjacencyMatrix = rows.map(function (row) {
+    return row.trim().split(/\s+/).map(Number);
+  });
+
+  let vertexDegrees = [];//вершина+ступінь
+  for (let i = 0; i < adjacencyMatrix.length; i++) {
+    let degree = 0; //ступінь вершини
+    for (let j = 0; j < adjacencyMatrix[i].length; j++) {
+      degree += adjacencyMatrix[i][j]; //додаємо значення з матриці
+    }
+    vertexDegrees.push({ vertex: i, degree });
+  }
+  vertexDegrees.sort((a, b) => b.degree - a.degree);//за спаданням
+
+  let edgeColors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#ff8000", "#66ffff", "#000000", "#000000", "#ffffff", "#660033", "#ffcccc"];
+  let colorIndex = 0;
+
+  edges.forEach(function (edge) {
+    edges.update({
+      id: edge.id, 
+      color: { color: edgeColors[colorIndex] }
+    });
+    colorIndex = colorIndex + 1; //змінюємо колір для наступного ребра
+  });
+}
 
 
 //побудова графа при завантаженні сторінки
 window.onload = buildGraph;
 function Clean() {
-   document.getElementById("matrixInput1").value = " ";
-  }
+  document.getElementById("matrixInput1").value = " ";
+}
