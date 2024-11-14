@@ -170,17 +170,13 @@ function findEulerianCycle() {
     document.querySelector(".inputRes").value = "Граф не має Ейлерового циклу";
   }
 }
-//розфарбування вершин
-
-//розфарбування ребер
-function colorEdges() {
-  //отримуємо матрицю суміжності з текстової області
+function colorVertices() {
+  // отримуємо матрицю суміжності
   let input = document.getElementById("matrixInput1").value.trim();
   let rows = input.split("\n");
   let adjacencyMatrix = rows.map(function (row) {
     return row.trim().split(/\s+/).map(Number);
   });
-
   let vertexDegrees = [];//вершина+ступінь
   for (let i = 0; i < adjacencyMatrix.length; i++) {
     let degree = 0; //ступінь вершини
@@ -190,7 +186,6 @@ function colorEdges() {
     vertexDegrees.push({ vertex: i, degree }); 
   }
   vertexDegrees.sort((a, b) => b.degree - a.degree);//за спаданням
-
   let vertexColors = new Array(adjacencyMatrix.length).fill(-1);//зберігаємо колір кожної вершини
   // призначення кольорів вершинам
   for (let i = 0; i < vertexDegrees.length; i++) {
@@ -202,12 +197,10 @@ function colorEdges() {
         usedColors[vertexColors[j]] = true;//позначаємо колір, який вже використовується
       }
     }
-
     let color = 0;
     while (usedColors[color]) color++;//пропускаємо використані кольори
     vertexColors[vertex] = color;//призначаємо перший доступний колір
   }
-
   // задаємо кольори
   const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#ff8000", "#800080", "#66ff33"];
   for (let i = 0; i < nodes.length; i++) {
@@ -219,7 +212,6 @@ function colorEdges() {
 }
 //розфарбування ребер
 function colorEdges() {
-
   //масив кольорів для кожного ребра
   let edgeColors = [];
 
