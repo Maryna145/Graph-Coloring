@@ -172,6 +172,50 @@ function findEulerianCycle() {
 }
 //розфарбування вершин
 
+function colorVertices() {
+  // отримуємо матрицю суміжності
+  let input = document.getElementById("matrixInput1").value.trim();
+  let rows = input.split("\n");
+  let adjacencyMatrix = rows.map(function (row) {
+    return row.trim().split(/\s+/).map(Number);
+  });
+
+  let vertexDegrees = [];//вершина+ступінь
+  for (let i = 0; i < adjacencyMatrix.length; i++) {
+    let degree = 0; //ступінь вершини
+    for (let j = 0; j < adjacencyMatrix[i].length; j++) {
+      degree += adjacencyMatrix[i][j];  //додаємо значення з матриці
+    }
+    vertexDegrees.push({ vertex: i, degree }); 
+  }
+  vertexDegrees.sort((a, b) => b.degree - a.degree);//за спаданням
+
+  let vertexColors = new Array(adjacencyMatrix.length).fill(-1);//зберігаємо колір кожної вершини
+  // призначення кольорів вершинам
+  for (let i = 0; i < vertexDegrees.length; i++) {
+    let vertex = vertexDegrees[i].vertex;//вершина з найбільшим степенем
+    let usedColors = new Array(adjacencyMatrix.length).fill(false);
+    //проходимося по сусідніх вершинах  
+    for (let j = 0; j < adjacencyMatrix[vertex].length; j++) {
+      if (adjacencyMatrix[vertex][j] > 0 && vertexColors[j] !== -1) {
+        usedColors[vertexColors[j]] = true;//позначаємо колір, який вже використовується
+      }
+    }
+
+    let color = 0;
+    while (usedColors[color]) color++;//пропускаємо використані кольори
+    vertexColors[vertex] = color;//призначаємо перший доступний колір
+  }
+
+  // задаємо кольори
+  const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#ff8000", "#800080", "#66ff33"];
+  for (let i = 0; i < nodes.length; i++) {
+    nodes.update({
+      id: i + 1,
+      color: { background: colors[vertexColors[i] % colors.length] }
+    });
+  }
+}
 //розфарбування ребер
 function colorEdges() {
   //отримуємо матрицю суміжності з текстової області
