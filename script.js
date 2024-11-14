@@ -172,8 +172,9 @@ function findEulerianCycle() {
 }
 //розфарбування вершин
 
-function colorVertices() {
-  // отримуємо матрицю суміжності
+//розфарбування ребер
+function colorEdges() {
+  //отримуємо матрицю суміжності з текстової області
   let input = document.getElementById("matrixInput1").value.trim();
   let rows = input.split("\n");
   let adjacencyMatrix = rows.map(function (row) {
