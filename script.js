@@ -172,9 +172,8 @@ function findEulerianCycle() {
 }
 //розфарбування вершин
 
-//розфарбування ребер
-function colorEdges() {
-  //отримуємо матрицю суміжності з текстової області
+function colorVertices() {
+  // отримуємо матрицю суміжності
   let input = document.getElementById("matrixInput1").value.trim();
   let rows = input.split("\n");
   let adjacencyMatrix = rows.map(function (row) {
@@ -185,22 +184,80 @@ function colorEdges() {
   for (let i = 0; i < adjacencyMatrix.length; i++) {
     let degree = 0; //ступінь вершини
     for (let j = 0; j < adjacencyMatrix[i].length; j++) {
-      degree += adjacencyMatrix[i][j]; //додаємо значення з матриці
+      degree += adjacencyMatrix[i][j];  //додаємо значення з матриці
     }
-    vertexDegrees.push({ vertex: i, degree });
+    vertexDegrees.push({ vertex: i, degree }); 
   }
   vertexDegrees.sort((a, b) => b.degree - a.degree);//за спаданням
 
-  let edgeColors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#ff8000", "#66ffff", "#000000", "#000000", "#ffffff", "#660033", "#ffcccc"];
-  let colorIndex = 0;
+  let vertexColors = new Array(adjacencyMatrix.length).fill(-1);//зберігаємо колір кожної вершини
+  // призначення кольорів вершинам
+  for (let i = 0; i < vertexDegrees.length; i++) {
+    let vertex = vertexDegrees[i].vertex;//вершина з найбільшим степенем
+    let usedColors = new Array(adjacencyMatrix.length).fill(false);
+    //проходимося по сусідніх вершинах  
+    for (let j = 0; j < adjacencyMatrix[vertex].length; j++) {
+      if (adjacencyMatrix[vertex][j] > 0 && vertexColors[j] !== -1) {
+        usedColors[vertexColors[j]] = true;//позначаємо колір, який вже використовується
+      }
+    }
 
-  edges.forEach(function (edge) {
-    edges.update({
-      id: edge.id, 
-      color: { color: edgeColors[colorIndex] }
+    let color = 0;
+    while (usedColors[color]) color++;//пропускаємо використані кольори
+    vertexColors[vertex] = color;//призначаємо перший доступний колір
+  }
+
+  // задаємо кольори
+  const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#ff8000", "#800080", "#66ff33"];
+  for (let i = 0; i < nodes.length; i++) {
+    nodes.update({
+      id: i + 1,
+      color: { background: colors[vertexColors[i] % colors.length] }
     });
-    colorIndex = colorIndex + 1; //змінюємо колір для наступного ребра
+  }
+}
+//розфарбування ребер
+function colorEdges() {
+
+  //масив кольорів для кожного ребра
+  let edgeColors = [];
+
+  //призначаємо кольори ребрам
+  edges.forEach(function(edge) {
+    let usedColors = new Set(); //використані кольори сусідніх ребер
+    let fromNode = edge.from - 1; //зменшуємо на 1, оскільки індексація вершин з 0
+    let toNode = edge.to - 1; 
+
+    //перевіряємо сусідні ребра з тією ж самою вершиною (щоб вони не мали однаковий колір)
+    edges.forEach(function(neighborEdge) {
+      if ((neighborEdge.from - 1 === fromNode || neighborEdge.to - 1 === fromNode) && neighborEdge.id !== edge.id) {
+        usedColors.add(edgeColors[neighborEdge.id - 1]);
+      }
+      if ((neighborEdge.from - 1 === toNode || neighborEdge.to - 1 === toNode) && neighborEdge.id !== edge.id) {
+        usedColors.add(edgeColors[neighborEdge.id - 1]);
+      }
+    });
+
+    //знайдемо перший доступний колір, який не використовується сусідніми ребрами
+    let colorIndex = 0;
+    while (usedColors.has(colorIndex)) {
+      colorIndex++;
+    }
+    edgeColors[edge.id - 1] = colorIndex; //призначаємо колір
   });
+
+  //оновлюємо кольори для всіх ребер
+  edges.forEach(function(edge) {
+    edges.update({
+      id: edge.id,
+      color: { color: getColorFromIndex(edgeColors[edge.id - 1]) }
+    });
+  });
+}
+//перетворення індексу кольору на реальний колір
+function getColorFromIndex(index) {
+  const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#ff8000", "#800080", "#66ff33"];
+  return colors[index % colors.length];
 }
 
 
