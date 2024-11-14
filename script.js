@@ -259,8 +259,6 @@ function getColorFromIndex(index) {
   const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#ff8000", "#800080", "#66ff33"];
   return colors[index % colors.length];
 }
-
-
 //побудова графа при завантаженні сторінки
 window.onload = buildGraph;
 function Clean() {
